@@ -201,57 +201,53 @@ function Reanet(defmodel={}){
         }
     }
 
-    // let last = 0
-    // let textItems = []
-    // let varItems = {}
-
-    // while (true){
-    //     let ind = str.indexOf("{", last)
-    //     if(ind == -1){
-    //         textItems.push(str.substring(last))
-    //         break
-    //     }
-    //     textItems.push(str.substring(last, ind))
-
-    //     let ind2 = str.indexOf("}", ind)
-
-    //     let res = str.substring(ind+1, ind2)
-    //     varItems[res] = res
-
-    //     last = ind2+1
-    // }
 
     /**@constructor*/
     function VrModelItem(item){
-        let template = item.textContent.trim()
-        let matches = template.match(/\{.*?\}/g)
+        let str = item.textContent.trim()
 
-        if(matches){
+        let last = 0
+        let ind = str.indexOf("{", last)
+
+        if(ind>-1){
             this.item = item
-            this.template = template
-            this.latest = {}
-            this.args = []
-            for(let i=0;i<matches.length;i++){
-                let arg = matches[i]
-                this.args.push(arg.substr(1,arg.length-2))
+            this.textItems = []
+            this.varItems = {}
+            this.varIndexes = []
+
+            while (true){
+                ind = str.indexOf("{", last)
+                if(ind == -1){
+                    this.textItems.push(str.substring(last))
+                    break
+                }
+                this.textItems.push(str.substring(last, ind))
+                let ind2 = str.indexOf("}", ind)
+                let res = str.substring(ind+1, ind2)
+                this.varItems[res] = res
+                this.varIndexes.push(res)
+                last = ind2+1
             }
+
+
             this.update = (model, prefix)=>{
                 let skip = true
-                for(let i=0;i<this.args.length;i++){
-                    let arg = this.args[i]
-                    let curent = getRec(prefix?getRec(model,prefix):model, arg)
-                    if(this.latest[arg] != curent){
+                for(let key in this.varItems){
+                    let curent = getRec(prefix?getRec(model,prefix):model, key)
+                    if(curent==undefined)curent = key
+                    if(this.varItems[key] != curent){
                         skip = false
-                        this.latest[arg] = curent
+                        this.varItems[key] = curent
                     }
                 }
                 if(skip)return
 
-                this.item.textContent = this.template.replace(/\{.*?\}/g, (arg)=>{
-                    let key = arg.substr(1,arg.length-2)
-                    let result = this.latest[key]
-                    return result?result:arg
-                })
+                let text = this.textItems[0]
+                for(let i=1;i<this.textItems.length;i++){
+                    text = text + (this.varItems[this.varIndexes[i-1]] + this.textItems[i])
+                }
+                this.item.textContent = text
+
             }
         } else {
             this.update = ignoreUpdates
@@ -266,40 +262,59 @@ function Reanet(defmodel={}){
         forinf = forinf.split(":")
         this.forKey = forinf[1]
         this.forVar = forinf[0]
+        this.parent.innerHTML = ""
 
+        
         this.getOrCreate = (num)=>{
             if(num in this.curData){
                 return this.curData[num]
             } else{
-                let copy = cloneNodes(this.templateNodes)
-                this.curData[num] = copy
-                return copy
+                let nodes = cloneNodes(this.templateNodes)
+                let vrModel = new VrModel()
+                vrModel.allNodes = nodes
+                vrModel.placed = false
+
+                for(let i=0;i<nodes.length;i++){
+                    forItems(nodes[i], vrModel)
+                }
+
+                this.curData[num] = vrModel
+                return vrModel
             }
         }
 
-        
+
         this.update = (model, forVar)=>{
-            this.parent.innerHTML = ""
             let objects = model[this.forKey]
             if(objects){
                 let temp, j, i
                 for(i=0;i<objects.length;i++){
-                    let vrModel = new VrModel()
                     let prev = model[this.forVar]
                     model[this.forVar] = objects[i]
 
                     temp = this.getOrCreate(i);
 
-                    for(j=0;j<temp.length;j++){
-                        forItems(temp[j], vrModel)
-                    }
-                    vrModel.update(model, null)
+                    temp.update(model, null)
                     model[this.forVar] = prev
                 }
+
                 for(i=0;i<objects.length;i++){
                     temp = this.curData[i]
-                    for(j=0;j<temp.length;j++){
-                        this.parent.appendChild(temp[j])
+                    if(!temp.placed){
+                        temp.placed = true
+                        for(j=0;j<temp.allNodes.length;j++){
+                            this.parent.appendChild(temp.allNodes[j])
+                        }
+                    }
+                }
+                let max = Object.keys(this.curData).length
+                for(;i<max;i++){
+                    temp = this.curData[i]
+                    if(temp.placed){
+                        for(j=0;j<temp.allNodes.length;j++){
+                            this.parent.removeChild(temp.allNodes[j])
+                        }
+                        temp.placed = false
                     }
                 }
             }
