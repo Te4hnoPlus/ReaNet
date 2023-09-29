@@ -47,7 +47,7 @@ reanet.unlock() //enable automatic rendering again
 ```
 #
 ## Compile With Google Clouse Compiler
-1) install `npm`
+1) install `npm` (Node Package Manager)
 2) install `Google Clouse Compiler` `(optional)`
 3) run `compile.bat`
 #
