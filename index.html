@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="./reanet.js"></script>
+</head>
+<body>
+    <style dev>
+        template{
+            display: none;
+        }
+        .test{
+            background-color: blueviolet;
+        }
+        .test2{
+            background-color: rgb(148, 127, 168);
+        }
+    </style>
+
+    <template name="main">
+        <script>
+            console.log("NEN");
+        </script>
+        <div for="data:data">
+            <div class="test">
+                {data.obj} {text}
+                <div class="test2">
+                    {data.obj2}
+                </div>
+                <div onclick='onclick1()'>
+                    CLICK
+                </div>
+            </div>
+            TEXT
+        </div>
+    </template>
+
+    <div id="frame"></div>
+
+    <script>
+        const reanet = new Reanet({
+            data:[{obj:"TEXT"},{obj:"TEXT2"}]
+        })
+        reanet.placeTo("frame", "main")
+
+        function onclick1(){
+            reanet.set("text","MOMO")
+        }
+    </script>
+
+    <script>
+
+        function compileTemplate(str="daata {obj} data{e2}"){
+            let last = 0
+            let textItems = []
+            let varItems = {}
+
+            while (true){
+                let ind = str.indexOf("{", last)
+                if(ind == -1){
+                    textItems.push(str.substring(last))
+                    break
+                }
+                textItems.push(str.substring(last, ind))
+
+                let ind2 = str.indexOf("}", ind)
+
+                let res = str.substring(ind+1, ind2)
+                varItems[res] = res
+
+                last = ind2+1
+            }
+
+            console.log(varItems);
+            console.log(textItems);
+
+
+        }
+
+        compileTemplate()
+
+
+    </script>
+
+</body>
+</html>
