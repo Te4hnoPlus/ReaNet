@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Testing ReaNet page</title>
     <script src="./reanet.js"></script>
 </head>
 <body>
@@ -25,7 +25,7 @@
 
     <template name="main">
         <script>
-            console.log("NEN");
+            console.log("Hello World!");
         </script>
         <div for="data:data">
             <div class="test">
@@ -54,8 +54,9 @@
         let num = 0
 
         function onclick1(){
-            data["data"].push({obj:"TEXT_"+num})
             num+=1
+            data["data"].push({obj:"TEXT_"+num})
+
             if(num==3){
                 num = 0
                 data["data"] = [{obj:"EPSILON"}]
@@ -69,20 +70,5 @@
         }
 
     </script>
-
-    <!-- <script>
-        let item = document.getElementById("frame")
-        let names = item.getAttributeNames()
-        for(let i=0;i<names.length;i++){
-            let atr = item.getAttribute(names[i])
-
-            item.setAttribute
-        }
-        
-
-        console.log(names);
-
-    </script> -->
-
 </body>
 </html>

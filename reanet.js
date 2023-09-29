@@ -14,6 +14,7 @@ function get(url,func){
     send('GET',url,null,func)
 }
 
+
 /**
  * @param {string} url 
  * @returns
@@ -23,6 +24,7 @@ function syncGet(url){
     let x=new XMLHttpRequest();x.open('GET',url,false);x.send();
     return x.responseText;
 }
+
 
 /**
  * @param {string} url 
@@ -53,6 +55,7 @@ function send(m,u,d,f,a=1){
 function getEl(id){
     return document.getElementById(id)
 }
+
 
 /**
  * @param {string} sig 
@@ -188,6 +191,7 @@ function Reanet(defmodel={}){
         return src
     }
 
+
     /**@constructor*/
     function VrModel(){
         this.items = []
@@ -204,6 +208,7 @@ function Reanet(defmodel={}){
             this.items.push(item)
         }
     }
+
 
     /**@constructor*/
     function VrAttributesItem(item){
@@ -373,6 +378,7 @@ function Reanet(defmodel={}){
         }
     }
 
+
     /**@constructor*/
     function VrModelBuilder(strTemplate){
         let html = toHtml(strTemplate)
@@ -413,6 +419,7 @@ function Reanet(defmodel={}){
         }
     }
 
+
     /**
      * @param {string} id 
      * @param {string} template 
@@ -424,6 +431,7 @@ function Reanet(defmodel={}){
         this.placed.push(placed)
         return this
     }
+
 
     /**
      * @returns 
@@ -438,6 +446,7 @@ function Reanet(defmodel={}){
         return this
     }
 
+
     /**
      * @returns 
      * @export
@@ -447,6 +456,7 @@ function Reanet(defmodel={}){
         return this
     }
 
+
     /**
      * @returns 
      * @export
@@ -455,6 +465,7 @@ function Reanet(defmodel={}){
         this.locked = false
         return this
     }
+
 
     /**
      * @param {string} key 
