@@ -2,7 +2,6 @@
  * @fileoverview Reanet lib
  * @extern
  */
-// goog.provide('reanet');
 
 
 /**Network Utilites start*/
@@ -104,7 +103,7 @@ function newEl(sig){
  */
 function Reanet(defmodel={}){
     const hasChilds = item => item.childNodes && item.childNodes.length
-    const ignoreUpdates = (model, prefix)=>{}
+    const ignoreUpdates = (model, prefix)=>false
     const parser = new DOMParser()
 
     this.templates = {}
@@ -202,15 +201,18 @@ function Reanet(defmodel={}){
     }
 
 
-    /**@constructor*/
-    function VrModelItem(item){
-        let str = item.textContent.trim()
+    function VrAttributesItem(item){
 
+    }
+    
+
+    /**@constructor*/
+    function Template(str){
         let last = 0
         let ind = str.indexOf("{", last)
+        this.text = str
 
         if(ind>-1){
-            this.item = item
             this.textItems = []
             this.varItems = {}
             this.varIndexes = []
@@ -240,14 +242,37 @@ function Reanet(defmodel={}){
                         this.varItems[key] = curent
                     }
                 }
-                if(skip)return
+                if(skip)return false
 
                 let text = this.textItems[0]
                 for(let i=1;i<this.textItems.length;i++){
                     text = text + (this.varItems[this.varIndexes[i-1]] + this.textItems[i])
                 }
-                this.item.textContent = text
+                this.text = text
+                
+                return true
+            }
+        } else {
+            this.update = ignoreUpdates
+        }
+    }
 
+
+    /**@constructor*/
+    function VrModelItem(item){
+        let str = item.textContent.trim()
+
+        let last = 0
+        let ind = str.indexOf("{", last)
+
+        if(ind>-1){
+            this.item = item
+            this.template = new Template(str)
+
+            this.update = (model, prefix)=>{
+                if(this.template.update(model, prefix)){
+                    this.item.textContent = this.template.text
+                }
             }
         } else {
             this.update = ignoreUpdates
