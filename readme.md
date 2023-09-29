@@ -45,3 +45,9 @@ reanet.update()
 reanet.lock() // to lock auto re-render
 reanet.unlock() //enable automatic rendering again
 ```
+#
+## Compile With Google Clouse Compiler
+1) install `npm`
+2) install `Google Clouse Compiler` `(optional)`
+3) run `compile.bat`
+#
