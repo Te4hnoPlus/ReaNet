@@ -156,6 +156,10 @@ function Reanet(defmodel={}){
 
 
     function forItems(item, model){
+        let vrAtrs = new VrAttributesItem(item)
+        if(vrAtrs.update){
+            model.add(vrAtrs)
+        }
         if(hasChilds(item)){
             let atr = item.getAttribute("for")
             if(atr){
@@ -167,7 +171,8 @@ function Reanet(defmodel={}){
             }
         } else{
             if(/\S/.test(item.textContent)){
-                model.add(new VrModelItem(item))
+                let vrItem = new VrModelItem(item)
+                if(vrItem.update) model.add(vrItem)
             }
         }
     }
@@ -200,11 +205,33 @@ function Reanet(defmodel={}){
         }
     }
 
-
+    /**@constructor*/
     function VrAttributesItem(item){
+        if(!item.getAttributeNames)return
+        let names = item.getAttributeNames()
+        let atrTweakers = []
+        for(let i=0;i<names.length;i++){
+            let atr = item.getAttribute(names[i])
+            let template = new Template(atr)
 
+            if(template.varItems){ //Is valid Template
+                template.name = names[i]
+                atrTweakers.push(template)
+            }
+        }
+        if(atrTweakers.length>0){
+            this.atrTweakers = atrTweakers
+            this.update = (model, prefix)=>{
+                for(let i=0;i<this.atrTweakers.length;i++){
+                    let tweaker = this.atrTweakers[i]
+                    if(tweaker.update(model, prefix)){
+                        item.setAttribute(tweaker.name, tweaker.text)
+                    }
+                }
+            }
+        }
     }
-    
+
 
     /**@constructor*/
     function Template(str){
@@ -274,10 +301,10 @@ function Reanet(defmodel={}){
                     this.item.textContent = this.template.text
                 }
             }
-        } else {
-            this.update = ignoreUpdates
         }
+
     }
+
 
     /**@constructor*/
     function VrModelDynamicItem(parent, forinf){

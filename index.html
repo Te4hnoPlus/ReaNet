@@ -18,6 +18,9 @@
         .test2{
             background-color: rgb(148, 127, 168);
         }
+        .testclass{
+            background-color: brown;
+        }
     </style>
 
     <template name="main">
@@ -30,7 +33,7 @@
                 <div class="test2">
                     {data.obj2}
                 </div>
-                <div onclick='onclick1()'>
+                <div class="{ba}" onclick='onclick1()'>
                     CLICK
                 </div>
             </div>
@@ -38,11 +41,12 @@
         </div>
     </template>
 
-    <div id="frame"></div>
+    <div id="frame" class="test"></div>
 
     <script>
         let data = {
-            data:[{obj:"TEXT"},{obj:"TEXT2"}]
+            data:[{obj:"TEXT"},{obj:"TEXT2"}],
+            ba:"testclass"
         }
         const reanet = new Reanet(data)
         reanet.placeTo("frame", "main")
@@ -56,10 +60,29 @@
                 num = 0
                 data["data"] = [{obj:"EPSILON"}]
             }
+            if(num==2){
+                data["ba"] = "test2"
+            } else{
+                data["ba"] = "testclass"
+            }
             reanet.set("text","MOMO")
         }
 
     </script>
+
+    <!-- <script>
+        let item = document.getElementById("frame")
+        let names = item.getAttributeNames()
+        for(let i=0;i<names.length;i++){
+            let atr = item.getAttribute(names[i])
+
+            item.setAttribute
+        }
+        
+
+        console.log(names);
+
+    </script> -->
 
 </body>
 </html>
