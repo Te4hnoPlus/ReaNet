@@ -68,6 +68,16 @@ function newEl(sig){
 /**End Default Te4hno Utilites */
 
 
+/**
+ * Hide <template> tag
+ */
+(()=>{
+    let el = newEl('style')
+    el.innerHTML=".template{display: none}"
+    document.head.appendChild(el)
+})
+
+
 /**Reanet, main frontend te4hno lib
  *
  * ------------- REANET USAGE -----------------------
