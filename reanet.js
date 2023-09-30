@@ -73,7 +73,7 @@ function newEl(sig){
  */
 {
     let el = newEl('style')
-    el.innerHTML=".template{display: none}"
+    el.innerHTML="template{display:none}"
     document.head.appendChild(el)
 }
 
@@ -127,26 +127,19 @@ function Reanet(defmodel={}){
     this.placed = []
     this.locked = false
 
-
-    function filterNodes(elms){
+    let filterNodes=(elms)=>{
         let items = []
         for(let i=0;i<elms.length;i++){
             let item = elms[i]
-            if(item.nodeName == "#text"){
-                if(/\S/.test(item.textContent))
-                    items.push(item)
-            } else{
-                if(hasChilds(item) || !/\S/.test(item.innerHTML)){
-                    items.push(item)
-                }
+            if(hasChilds(item) || /\S/.test(item.textContent)){
+                items.push(item)
             }
-
         }
         return items
     }
 
 
-    function getTemplatesMap(){
+    let getTemplatesMap=()=>{
         let tms = document.getElementsByTagName("template")
         let templates = {}
         for(let i = 0;i<tms.length;i++){
@@ -156,13 +149,13 @@ function Reanet(defmodel={}){
     }
 
 
-    function toHtml(strelm){
+    let toHtml=(strelm)=>{
         let html = parser.parseFromString(strelm, "text/html")
-        return {scripts: html.scripts, nodes: filterNodes(html.body.childNodes)}
+        return {vscripts: html.scripts, nodes: filterNodes(html.body.childNodes)}
     }
 
 
-    function cloneNodes(src){
+    let cloneNodes=(src)=>{
         let copy = []
         for(let i=0;i<src.length;i++){
             copy.push(src[i].cloneNode(true))
@@ -171,19 +164,20 @@ function Reanet(defmodel={}){
     }
 
 
-    function getAndRem(item, key){
+    let getAndRem=(item, key)=>{
         let atr = item.getAttribute(key)
         if(atr) item.removeAttribute(key)
         return atr
     }
 
 
-    function forItems(item, model){
-        let vrAtrs = new VrAttributesItem(item)
-        if(vrAtrs.update){
-            model.add(vrAtrs)
-        }
+    let forItems=(item, model)=>{
         if(hasChilds(item)){
+            let vrAtrs = new VrAttributesItem(item)
+            if(vrAtrs.upd){
+                model.add(vrAtrs)
+            }
+
             let atr = getAndRem(item, "if")
             if(atr){
                 let logicItem = new VrLogicalItem(item, atr)
@@ -201,13 +195,13 @@ function Reanet(defmodel={}){
         } else{
             if(/\S/.test(item.textContent)){
                 let vrItem = new VrModelItem(item)
-                if(vrItem.update) model.add(vrItem)
+                if(vrItem.upd != ignoreUpdates) model.add(vrItem)
             }
         }
     }
 
 
-    function getRec(src, key){
+    let getRec=(src, key)=>{
         let keys = key.split(".")
         let cursor = 0;
         for(;cursor<keys.length;cursor++){
@@ -225,11 +219,10 @@ function Reanet(defmodel={}){
     function VrModel(){
         this.items = []
 
-        this.update = (model, prefix)=>{
+        this.upd = (model, prefix)=>{
             for(let i=0;i<this.items.length;i++){
-                this.items[i].update(model, prefix)
+                this.items[i].upd(model, prefix)
             }
-            return this
         }
 
 
@@ -241,11 +234,9 @@ function Reanet(defmodel={}){
 
     /**
      * Attributes tweaker template
-     * @param {*} item 
      * @constructor
      */
     function VrAttributesItem(item){
-        if(!item.getAttributeNames)return
         let names = item.getAttributeNames()
         let atrTweakers = []
         for(let i=0;i<names.length;i++){
@@ -253,33 +244,34 @@ function Reanet(defmodel={}){
             let template = new Template(atr)
 
             if(template.varItems){ //Is valid Template
-                template.name = names[i]
+                template.n = names[i]
                 atrTweakers.push(template)
             }
         }
         if(atrTweakers.length>0){
             this.atrTweakers = atrTweakers
-            this.update = (model, prefix)=>{
+            this.upd = (model, prefix)=>{
                 for(let i=0;i<this.atrTweakers.length;i++){
                     let tweaker = this.atrTweakers[i]
-                    if(tweaker.update(model, prefix)){
-                        item.setAttribute(tweaker.name, tweaker.text)
+                    if(tweaker.upd(model, prefix)){
+                        item.setAttribute(tweaker.n, tweaker.txt)
                     }
                 }
             }
+        } else{
+            this.upd = ignoreUpdates
         }
     }
 
 
     /**
      * Base string template
-     * @param {string} str
      * @constructor
      */
     function Template(str){
         let last = 0
         let ind = str.indexOf("{", last)
-        this.text = str
+        this.txt = str
 
         if(ind>-1){
             this.textItems = []
@@ -301,7 +293,7 @@ function Reanet(defmodel={}){
             }
 
 
-            this.update = (model, prefix)=>{
+            this.upd = (model, prefix)=>{
                 let skip = true
                 for(let key in this.varItems){
                     let curent = getRec(prefix?getRec(model,prefix):model, key)
@@ -317,19 +309,18 @@ function Reanet(defmodel={}){
                 for(let i=1;i<this.textItems.length;i++){
                     text = text + (this.varItems[this.varIndexes[i-1]] + this.textItems[i])
                 }
-                this.text = text
+                this.txt = text
                 
                 return true
             }
         } else {
-            this.update = ignoreUpdates
+            this.upd = ignoreUpdates
         }
     }
 
 
     /**
      * Base item template
-     * @param {*} item 
      * @constructor
      */
     function VrModelItem(item){
@@ -342,20 +333,21 @@ function Reanet(defmodel={}){
             this.item = item
             this.template = new Template(str)
 
-            this.update = (model, prefix)=>{
-                if(this.template.update(model, prefix)){
-                    this.item.textContent = this.template.text
+            this.upd = (model, prefix)=>{
+                if(this.template.upd(model, prefix)){
+                    this.item.textContent = this.template.txt
                 }
             }
+        } else{
+            this.upd = ignoreUpdates
         }
     }
 
 
     /**
      * Template "if" logic
-     * @param {*} item 
-     * @param {string} atr 
      * @constructor
+     * @private
      */
     function VrLogicalItem(item, atr){
         this.item = item
@@ -368,14 +360,17 @@ function Reanet(defmodel={}){
             this.items.push(item)
         }
 
-        this.update = (model, prefix)=>{
+        /**
+         * @private
+         */
+        this.upd = (model, prefix)=>{
             if(eval(this.func)){
                 if(!item.visable){
                     item.style.display = item.defDisplay
                     item.visable = true
                 }
                 for(let i=0;i<this.items.length;i++){
-                    this.items[i].update(model, prefix)
+                    this.items[i].upd(model, prefix)
                 }
             } else{
                 if(item.visable){
@@ -383,7 +378,6 @@ function Reanet(defmodel={}){
                     item.visable = false
                 }
             }
-            return this
         }
     }
 
@@ -391,6 +385,7 @@ function Reanet(defmodel={}){
     /**
      * Template "for" loop
      * @constructor
+     * @private
      */
     function VrModelDynamicItem(parent, forinf){
         this.parent = parent
@@ -421,7 +416,7 @@ function Reanet(defmodel={}){
         }
 
 
-        this.update = (model, forVar)=>{
+        this.upd = (model, forVar)=>{
             let objects = model[this.forKey]
             if(objects){
                 let temp, j, i
@@ -431,7 +426,7 @@ function Reanet(defmodel={}){
 
                     temp = this.getOrCreate(i);
 
-                    temp.update(model, null)
+                    temp.upd(model, undefined)
                     model[this.forVar] = prev
                 }
 
@@ -461,16 +456,16 @@ function Reanet(defmodel={}){
 
     /**
      * This compile String template to template installer
-     * @param {string} strTemplate 
      * @constructor
+     * @private
      */
     function VrModelBuilder(strTemplate){
         let html = toHtml(strTemplate)
         this.nodes = html.nodes
 
-        if(html.scripts){
-            for(let i=0;i<html.scripts.length;i++){
-                eval(html.scripts[i].textContent)
+        if(html.vscripts){
+            for(let i=0;i<html.vscripts.length;i++){
+                eval(html.vscripts[i].textContent)
             }
         }
 
@@ -489,7 +484,7 @@ function Reanet(defmodel={}){
                 for(i=0;i<nodes.length;i++) {
                     forItems(nodes[i], vrModel)
                 }
-                vrModel.update(model, null)
+                vrModel.upd(model, undefined)
                 for(i=0;i<nodes.length;i++) {
                     frame.appendChild(nodes[i])
                 }
@@ -548,7 +543,7 @@ function Reanet(defmodel={}){
     this.update = ()=>{
         for(let i=0;i<this.placed.length;i++){
             let vr = this.placed[i]
-            if(!vr.locked) vr.update(this.model)
+            if(!vr.l) vr.upd(this.model)
         }
         return this
     }
@@ -572,12 +567,11 @@ function Reanet(defmodel={}){
 
     /**
      * Toggle lock state
-     * @param {boolean} state 
      * @returns 
      */
     this.state = (state, target)=>{
         if(target){
-            getEl(target).vrmodel.locked  = state
+            getEl(target).vrmodel.l  = state
         } else{
             this.locked = state
         }

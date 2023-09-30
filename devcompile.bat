@@ -1,0 +1,1 @@
+google-closure-compiler --js goog-base.js --js reanet.js -O ADVANCED --js_output_file reanet-min.js
