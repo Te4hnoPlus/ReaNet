@@ -10,8 +10,8 @@
  * @param {Function} func
  * @export
  */
-function get(url,func){
-    send('GET',url,null,func)
+function get(url, func){
+    send('GET', url, null, func)
 }
 
 
@@ -21,8 +21,10 @@ function get(url,func){
  * @export
  */
 function syncGet(url){
-    let x=new XMLHttpRequest();x.open('GET',url,false);x.send();
-    return x.responseText;
+    let x=new XMLHttpRequest()
+    x.open('GET', url, false)
+    x.send()
+    return x.responseText
 }
 
 
@@ -32,18 +34,16 @@ function syncGet(url){
  * @param {Function} func
  * @export
  */
-function post(url,data,func){
-    send('POST',url,data,func)
+function post(url, data, func){
+    send('POST', url, data, func)
 }
 
 
-function send(m,u,d,f,a=1){
-    let request=new XMLHttpRequest();
-    request.open(m,u,a)
+function send(m, u, d, f, a=1){
+    let request = new XMLHttpRequest();
+    request.open(m, u, a)
     request.send(d)
-    request.onload=()=>{
-        f(request.responseText)
-    }
+    request.onload = ()=> f(request.responseText)
 }
 /**Network Utilites end*/
 
@@ -119,7 +119,7 @@ function newEl(sig){
  */
 function Reanet(defmodel={}){
     const hasChilds = item => item.childNodes && item.childNodes.length
-    const ignoreUpdates = (model, prefix)=>false
+    const ignoreUpdates = (model, prefix) => false
     const parser = new DOMParser()
 
     this.templates = {}
@@ -129,7 +129,7 @@ function Reanet(defmodel={}){
 
     let filterNodes=(elms)=>{
         let items = []
-        for(let i=0;i<elms.length;i++){
+        for(let i=0; i < elms.length; i++){
             let item = elms[i]
             if(hasChilds(item) || /\S/.test(item.textContent)){
                 items.push(item)
@@ -142,7 +142,7 @@ function Reanet(defmodel={}){
     let getTemplatesMap=()=>{
         let tms = document.getElementsByTagName("template")
         let templates = {}
-        for(let i = 0;i<tms.length;i++){
+        for(let i = 0; i < tms.length; i++){
             templates[tms[i].getAttribute("name")] = tms[i].innerHTML
         }
         return templates
@@ -157,7 +157,7 @@ function Reanet(defmodel={}){
 
     let cloneNodes=(src)=>{
         let copy = []
-        for(let i=0;i<src.length;i++){
+        for(let i = 0; i < src.length; i++){
             copy.push(src[i].cloneNode(true))
         }
         return copy
@@ -188,7 +188,7 @@ function Reanet(defmodel={}){
             if(atr){
                 model.add(new VrModelDynamicItem(item, atr))
             } else{
-                for(let i=0;i<item.childNodes.length;i++){
+                for(let i = 0; i < item.childNodes.length; i++){
                     forItems(item.childNodes[i], model)
                 }
             }
@@ -204,7 +204,8 @@ function Reanet(defmodel={}){
     let getRec=(src, key)=>{
         let keys = key.split(".")
         let cursor = 0;
-        for(;cursor<keys.length;cursor++){
+
+        for(;cursor < keys.length; cursor++){
             if(!src)return undefined
             src = src[keys[cursor]]
         }
@@ -215,12 +216,13 @@ function Reanet(defmodel={}){
     /**
      * Groop of other Vr-Elements
      * @constructor
+     * @private
      */
     function VrModel(){
         this.items = []
 
         this.upd = (model, prefix)=>{
-            for(let i=0;i<this.items.length;i++){
+            for(let i = 0; i<this.items.length; i++){
                 this.items[i].upd(model, prefix)
             }
         }
@@ -235,11 +237,13 @@ function Reanet(defmodel={}){
     /**
      * Attributes tweaker template
      * @constructor
+     * @private
      */
     function VrAttributesItem(item){
         let names = item.getAttributeNames()
         let atrTweakers = []
-        for(let i=0;i<names.length;i++){
+
+        for(let i = 0; i<names.length; i++){
             let atr = item.getAttribute(names[i])
             let template = new Template(atr)
 
@@ -248,10 +252,11 @@ function Reanet(defmodel={}){
                 atrTweakers.push(template)
             }
         }
-        if(atrTweakers.length>0){
+
+        if(atrTweakers.length > 0){
             this.atrTweakers = atrTweakers
             this.upd = (model, prefix)=>{
-                for(let i=0;i<this.atrTweakers.length;i++){
+                for(let i = 0; i<this.atrTweakers.length; i++){
                     let tweaker = this.atrTweakers[i]
                     if(tweaker.upd(model, prefix)){
                         item.setAttribute(tweaker.n, tweaker.txt)
@@ -267,13 +272,14 @@ function Reanet(defmodel={}){
     /**
      * Base string template
      * @constructor
+     * @private
      */
     function Template(str){
         let last = 0
         let ind = str.indexOf("{", last)
         this.txt = str
 
-        if(ind>-1){
+        if(ind > -1){
             this.textItems = []
             this.varItems = {}
             this.varIndexes = []
@@ -286,12 +292,11 @@ function Reanet(defmodel={}){
                 }
                 this.textItems.push(str.substring(last, ind))
                 let ind2 = str.indexOf("}", ind)
-                let res = str.substring(ind+1, ind2)
+                let res = str.substring(ind + 1, ind2)
                 this.varItems[res] = res
                 this.varIndexes.push(res)
                 last = ind2+1
             }
-
 
             this.upd = (model, prefix)=>{
                 let skip = true
@@ -306,8 +311,8 @@ function Reanet(defmodel={}){
                 if(skip)return false
 
                 let text = this.textItems[0]
-                for(let i=1;i<this.textItems.length;i++){
-                    text = text + (this.varItems[this.varIndexes[i-1]] + this.textItems[i])
+                for(let i=1; i < this.textItems.length; i++){
+                    text = text + (this.varItems[this.varIndexes[i - 1]] + this.textItems[i])
                 }
                 this.txt = text
                 
@@ -322,14 +327,14 @@ function Reanet(defmodel={}){
     /**
      * Base item template
      * @constructor
+     * @private
      */
     function VrModelItem(item){
         let str = item.textContent.trim()
-
         let last = 0
         let ind = str.indexOf("{", last)
 
-        if(ind>-1){
+        if(ind > -1){
             this.item = item
             this.template = new Template(str)
 
@@ -396,7 +401,6 @@ function Reanet(defmodel={}){
         this.forVar = forinf[0]
         this.parent.innerHTML = ""
 
-        
         this.getOrCreate = (num)=>{
             if(num in this.curData){
                 return this.curData[num]
@@ -406,7 +410,7 @@ function Reanet(defmodel={}){
                 vrModel.allNodes = nodes
                 vrModel.placed = false
 
-                for(let i=0;i<nodes.length;i++){
+                for(let i = 0; i < nodes.length; i++){
                     forItems(nodes[i], vrModel)
                 }
 
@@ -418,9 +422,10 @@ function Reanet(defmodel={}){
 
         this.upd = (model, forVar)=>{
             let objects = model[this.forKey]
+
             if(objects){
                 let temp, j, i
-                for(i=0;i<objects.length;i++){
+                for(i = 0; i < objects.length; i++){
                     let prev = model[this.forVar]
                     model[this.forVar] = objects[i]
 
@@ -430,20 +435,22 @@ function Reanet(defmodel={}){
                     model[this.forVar] = prev
                 }
 
-                for(i=0;i<objects.length;i++){
+                for(i = 0; i < objects.length; i++){
                     temp = this.curData[i]
                     if(!temp.placed){
                         temp.placed = true
-                        for(j=0;j<temp.allNodes.length;j++){
+                        for(j = 0; j < temp.allNodes.length; j++){
                             this.parent.appendChild(temp.allNodes[j])
                         }
                     }
                 }
+
                 let max = Object.keys(this.curData).length
-                for(;i<max;i++){
+
+                for(;i < max; i++){
                     temp = this.curData[i]
                     if(temp.placed){
-                        for(j=0;j<temp.allNodes.length;j++){
+                        for(j = 0; j<temp.allNodes.length; j++){
                             this.parent.removeChild(temp.allNodes[j])
                         }
                         temp.placed = false
@@ -464,7 +471,7 @@ function Reanet(defmodel={}){
         this.nodes = html.nodes
 
         if(html.vscripts){
-            for(let i=0;i<html.vscripts.length;i++){
+            for(let i = 0; i < html.vscripts.length; i++){
                 eval(html.vscripts[i].textContent)
             }
         }
@@ -480,8 +487,9 @@ function Reanet(defmodel={}){
             let frame = getEl(id)
             let nodes = this.cloneNodes()
             let i
+
             if(model){
-                for(i=0;i<nodes.length;i++) {
+                for(i = 0; i < nodes.length; i++) {
                     forItems(nodes[i], vrModel)
                 }
                 vrModel.upd(model, undefined)
@@ -489,11 +497,12 @@ function Reanet(defmodel={}){
                     frame.appendChild(nodes[i])
                 }
             } else{
-                for(i=0;i<nodes.length;i++){
+                for(i = 0; i < nodes.length; i++){
                     forItems(nodes[i], vrModel)
                     frame.appendChild(nodes[i])
                 }
             }
+
             vrModel.id = id
             frame.vrModel = vrModel
             return vrModel
@@ -541,7 +550,7 @@ function Reanet(defmodel={}){
      * @export
      */
     this.update = ()=>{
-        for(let i=0;i<this.placed.length;i++){
+        for(let i = 0; i < this.placed.length; i++){
             let vr = this.placed[i]
             if(!vr.l) vr.upd(this.model)
         }
