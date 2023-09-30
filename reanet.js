@@ -172,12 +172,12 @@ function Reanet(defmodel={}){
 
 
     let forItems = (item, model)=>{
+        let vrAtrs = new VrAttributesItem(item)
+        if(vrAtrs.upd){
+            model.add(vrAtrs)
+        }
+        
         if(hasChilds(item)){
-            let vrAtrs = new VrAttributesItem(item)
-            if(vrAtrs.upd){
-                model.add(vrAtrs)
-            }
-
             let atr = getAndRem(item, "if")
             if(atr){
                 let logicItem = new VrLogicalItem(item, atr)
@@ -240,6 +240,7 @@ function Reanet(defmodel={}){
      * @private
      */
     function VrAttributesItem(item){
+        if(!item.getAttributeNames)return
         let names = item.getAttributeNames()
         let atrTweakers = []
 
