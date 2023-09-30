@@ -18,6 +18,9 @@ Docks in progress...
         </div>
         TEXT
     </div>
+    <div if="needShowText()" onclick="onclick1()">
+        TEXT_TEXT_TEXT
+    </div>
 </template>
 ```
 ## Marker to install template

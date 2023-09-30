@@ -93,6 +93,9 @@ function newEl(sig){
  *    <div for="var:data">  <-\ loop for objects in data
  *      {var.obj}              \ assigns "var" value 
  *    </div>                    \ data[cursor] at iteration
+ *    <div if="showText()">  <-\ eval "if" to check
+ *      Text                    \ need render or not
+ *    </div>
  * </template>
  * 
  * <div id="frame"></div>  <-\ Marker to install template
@@ -215,7 +218,10 @@ function Reanet(defmodel={}){
     }
 
 
-    /**@constructor*/
+    /**
+     * Groop of other Vr-Elements
+     * @constructor
+     */
     function VrModel(){
         this.items = []
 
@@ -233,7 +239,11 @@ function Reanet(defmodel={}){
     }
 
 
-    /**@constructor*/
+    /**
+     * Attributes tweaker template
+     * @param {*} item 
+     * @constructor
+     */
     function VrAttributesItem(item){
         if(!item.getAttributeNames)return
         let names = item.getAttributeNames()
@@ -261,7 +271,11 @@ function Reanet(defmodel={}){
     }
 
 
-    /**@constructor*/
+    /**
+     * Base string template
+     * @param {string} str
+     * @constructor
+     */
     function Template(str){
         let last = 0
         let ind = str.indexOf("{", last)
@@ -313,7 +327,11 @@ function Reanet(defmodel={}){
     }
 
 
-    /**@constructor*/
+    /**
+     * Base item template
+     * @param {*} item 
+     * @constructor
+     */
     function VrModelItem(item){
         let str = item.textContent.trim()
 
@@ -332,8 +350,13 @@ function Reanet(defmodel={}){
         }
     }
 
-    //TODO
-    /**@constructor*/
+
+    /**
+     * Template "if" logic
+     * @param {*} item 
+     * @param {string} atr 
+     * @constructor
+     */
     function VrLogicalItem(item, atr){
         this.item = item
         this.items = []
@@ -365,7 +388,12 @@ function Reanet(defmodel={}){
     }
 
 
-    /**@constructor*/
+    /**
+     * Template "for" loop
+     * @param {string} parent 
+     * @param {string} forinf 
+     * @constructor
+     */
     function VrModelDynamicItem(parent, forinf){
         this.parent = parent
         this.curData = {}
@@ -433,7 +461,11 @@ function Reanet(defmodel={}){
     }
 
 
-    /**@constructor*/
+    /**
+     * This compile String template to template installer
+     * @param {string} strTemplate 
+     * @constructor
+     */
     function VrModelBuilder(strTemplate){
         let html = toHtml(strTemplate)
         this.nodes = html.nodes
@@ -477,6 +509,7 @@ function Reanet(defmodel={}){
 
 
     /**
+     * Install template to frame
      * @param {string} id 
      * @param {string} template 
      * @returns 
@@ -489,6 +522,11 @@ function Reanet(defmodel={}){
     }
 
 
+    /**
+     * Destroy template in frame
+     * @param {string} id
+     * @export
+     */
     this.destroy = (id)=>{
         let el = getEl(id)
         if(el){
@@ -505,6 +543,7 @@ function Reanet(defmodel={}){
 
 
     /**
+     * Update all templates
      * @returns 
      * @export
      */
@@ -518,6 +557,7 @@ function Reanet(defmodel={}){
 
 
     /**
+     * Lock auto-rerender
      * @returns 
      * @export
      */
@@ -525,6 +565,7 @@ function Reanet(defmodel={}){
 
 
     /**
+     * Unlock auto-rerender
      * @returns 
      * @export
      */
@@ -532,7 +573,7 @@ function Reanet(defmodel={}){
 
 
     /**
-     * 
+     * Toggle lock state
      * @param {boolean} state 
      * @returns 
      */
@@ -547,6 +588,7 @@ function Reanet(defmodel={}){
 
 
     /**
+     * Update data model and re-render
      * @param {string} key 
      * @param {Object} val 
      * @export
