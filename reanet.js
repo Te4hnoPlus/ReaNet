@@ -127,7 +127,7 @@ function Reanet(defmodel={}){
     this.placed = []
     this.locked = false
 
-    let filterNodes=(elms)=>{
+    let filterNodes = (elms)=>{
         let items = []
         for(let i=0; i < elms.length; i++){
             let item = elms[i]
@@ -139,7 +139,7 @@ function Reanet(defmodel={}){
     }
 
 
-    let getTemplatesMap=()=>{
+    let getTemplatesMap = ()=>{
         let tms = document.getElementsByTagName("template")
         let templates = {}
         for(let i = 0; i < tms.length; i++){
@@ -149,13 +149,13 @@ function Reanet(defmodel={}){
     }
 
 
-    let toHtml=(strelm)=>{
+    let toHtml = (strelm)=>{
         let html = parser.parseFromString(strelm, "text/html")
         return {vscripts: html.scripts, nodes: filterNodes(html.body.childNodes)}
     }
 
 
-    let cloneNodes=(src)=>{
+    let cloneNodes = (src)=>{
         let copy = []
         for(let i = 0; i < src.length; i++){
             copy.push(src[i].cloneNode(true))
@@ -164,14 +164,14 @@ function Reanet(defmodel={}){
     }
 
 
-    let getAndRem=(item, key)=>{
+    let getAndRem = (item, key)=>{
         let atr = item.getAttribute(key)
         if(atr) item.removeAttribute(key)
         return atr
     }
 
 
-    let forItems=(item, model)=>{
+    let forItems = (item, model)=>{
         if(hasChilds(item)){
             let vrAtrs = new VrAttributesItem(item)
             if(vrAtrs.upd){
@@ -201,7 +201,7 @@ function Reanet(defmodel={}){
     }
 
 
-    let getRec=(src, key)=>{
+    let getRec = (src, key)=>{
         let keys = key.split(".")
         let cursor = 0;
 
