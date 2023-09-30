@@ -24,7 +24,7 @@
         <script>
             console.log("Hello World!");
         </script>
-        <div for="data:data">
+        <div if="showText()" for="data:data">
             <div class="test">
                 {data.obj} {text}
                 <div class="test2">
@@ -34,7 +34,9 @@
                     CLICK
                 </div>
             </div>
-            TEXT
+        </div>
+        <div if="!showText()" onclick="onclick1()">
+            TEXT_TEXT_TEXT
         </div>
     </template>
 
@@ -48,20 +50,26 @@
         const reanet = new Reanet(data)
         reanet.placeTo("frame", "main")
 
-        let num = 0
+        var num = 0
+
+        function showText(){
+            return num != 2
+        }
 
         function onclick1(){
             num+=1
             data["data"].push({obj:"TEXT_"+num})
 
-            if(num==3){
+            if(num==4){
                 num = 0
                 data["data"] = [{obj:"EPSILON"}]
             }
             if(num==2){
                 data["ba"] = "test2"
+                // reanet.destroy("frame")
             } else{
                 data["ba"] = "testclass"
+
             }
             reanet.set("text","MOMO")
         }

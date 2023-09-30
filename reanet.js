@@ -168,13 +168,26 @@ function Reanet(defmodel={}){
     }
 
 
+    function getAndRem(item, key){
+        let atr = item.getAttribute(key)
+        if(atr) item.removeAttribute(key)
+        return atr
+    }
+
+
     function forItems(item, model){
         let vrAtrs = new VrAttributesItem(item)
         if(vrAtrs.update){
             model.add(vrAtrs)
         }
         if(hasChilds(item)){
-            let atr = item.getAttribute("for")
+            let atr = getAndRem(item, "if")
+            if(atr){
+                let logicItem = new VrLogicalItem(item, atr)
+                model.add(logicItem)
+                model = logicItem
+            }
+            atr = getAndRem(item, "for")
             if(atr){
                 model.add(new VrModelDynamicItem(item, atr))
             } else{
@@ -317,7 +330,38 @@ function Reanet(defmodel={}){
                 }
             }
         }
+    }
 
+    //TODO
+    /**@constructor*/
+    function VrLogicalItem(item, atr){
+        this.item = item
+        this.items = []
+        this.func = atr
+        item.defDisplay = item.style.display
+        item.visable = true
+
+        this.add = (item)=>{
+            this.items.push(item)
+        }
+
+        this.update = (model, prefix)=>{
+            if(eval(this.func)){
+                if(!item.visable){
+                    item.style.display = item.defDisplay
+                    item.visable = true
+                }
+                for(let i=0;i<this.items.length;i++){
+                    this.items[i].update(model, prefix)
+                }
+            } else{
+                if(item.visable){
+                    item.style.display = 'none'
+                    item.visable = false
+                }
+            }
+            return this
+        }
     }
 
 
@@ -425,6 +469,8 @@ function Reanet(defmodel={}){
                     frame.appendChild(nodes[i])
                 }
             }
+            vrModel.id = id
+            frame.vrModel = vrModel
             return vrModel
         }
     }
@@ -443,15 +489,29 @@ function Reanet(defmodel={}){
     }
 
 
+    this.destroy = (id)=>{
+        let el = getEl(id)
+        if(el){
+            if(el.vrModel){
+                for (let i = this.placed.length - 1; i >= 0; --i) {
+                    if (this.placed[i].id == id) {
+                        this.placed.splice(i,1);
+                    }
+                }
+            }
+            el.innerHTML = ''
+        }
+    }
+
+
     /**
      * @returns 
      * @export
      */
     this.update = ()=>{
-        if(!this.locked){
-            for(let i=0;i<this.placed.length;i++){
-                this.placed[i].update(this.model)
-            }
+        for(let i=0;i<this.placed.length;i++){
+            let vr = this.placed[i]
+            if(!vr.locked) vr.update(this.model)
         }
         return this
     }
@@ -461,18 +521,27 @@ function Reanet(defmodel={}){
      * @returns 
      * @export
      */
-    this.lock = ()=>{
-        this.locked = true
-        return this
-    }
+    this.lock = (target)=> this.state(true, target)
 
 
     /**
      * @returns 
      * @export
      */
-    this.unlock = ()=>{
-        this.locked = false
+    this.unlock = (target)=> this.state(false, target)
+
+
+    /**
+     * 
+     * @param {boolean} state 
+     * @returns 
+     */
+    this.state = (state, target)=>{
+        if(target){
+            getEl(target).vrmodel.locked  = state
+        } else{
+            this.locked = state
+        }
         return this
     }
 
@@ -484,7 +553,8 @@ function Reanet(defmodel={}){
      */
     this.set = (key, val)=>{
         this.model[key] = val
-        this.update()
+        if(!this.locked) this.update()
+        return this
     }
 
 
