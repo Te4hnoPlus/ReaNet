@@ -131,7 +131,7 @@ function Reanet(defmodel={}){
         let items = []
         for(let i=0; i < elms.length; i++){
             let item = elms[i]
-            if(hasChilds(item) || /\S/.test(item.textContent)){
+            if(hasChilds(item) || item.nodeName !="#text" || /\S/.test(item.textContent)){
                 items.push(item)
             }
         }

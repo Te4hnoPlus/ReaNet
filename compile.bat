@@ -3,7 +3,6 @@
 set name=reanet
 
 set install=true
-
 where google-closure-compiler >nul && set install=false
 
 IF %install% == true (
