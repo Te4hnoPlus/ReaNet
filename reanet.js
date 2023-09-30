@@ -71,11 +71,11 @@ function newEl(sig){
 /**
  * Hide <template> tag
  */
-(()=>{
+{
     let el = newEl('style')
     el.innerHTML=".template{display: none}"
     document.head.appendChild(el)
-})
+}
 
 
 /**Reanet, main frontend te4hno lib
@@ -390,8 +390,6 @@ function Reanet(defmodel={}){
 
     /**
      * Template "for" loop
-     * @param {string} parent 
-     * @param {string} forinf 
      * @constructor
      */
     function VrModelDynamicItem(parent, forinf){
