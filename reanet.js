@@ -1,6 +1,5 @@
 /**
  * @fileoverview Reanet lib
- * @extern
  */
 
 
@@ -115,15 +114,14 @@ function newEl(sig){
 /**
  * @constructor
  * @final
- * @export
  */
-function Reanet(defmodel={}){
+function Reanet(){
     const hasChilds = item => item.childNodes && item.childNodes.length
     const ignoreUpdates = (model, prefix) => false
     const parser = new DOMParser()
 
     this.templates = {}
-    this.model = defmodel
+    this.dmodel = {}
     this.placed = []
     this.locked = false
 
@@ -136,16 +134,6 @@ function Reanet(defmodel={}){
             }
         }
         return items
-    }
-
-
-    let getTemplatesMap = ()=>{
-        let tms = document.getElementsByTagName("template")
-        let templates = {}
-        for(let i = 0; i < tms.length; i++){
-            templates[tms[i].getAttribute("name")] = tms[i].innerHTML
-        }
-        return templates
     }
 
 
@@ -519,7 +507,7 @@ function Reanet(defmodel={}){
      * @export
      */
     this.placeTo = (id, template)=>{
-        let placed = this.templates[template].placeTo(id, this.model)
+        let placed = this.templates[template].placeTo(id, this.dmodel)
         this.placed.push(placed)
         return this
     }
@@ -553,7 +541,7 @@ function Reanet(defmodel={}){
     this.update = ()=>{
         for(let i = 0; i < this.placed.length; i++){
             let vr = this.placed[i]
-            if(!vr.l) vr.upd(this.model)
+            if(!vr.l) vr.upd(this.dmodel)
         }
         return this
     }
@@ -596,14 +584,37 @@ function Reanet(defmodel={}){
      * @export
      */
     this.set = (key, val)=>{
-        this.model[key] = val
+        this.dmodel[key] = val
         if(!this.locked) this.update()
         return this
     }
 
 
-    let temMap = getTemplatesMap()
-    for(let key in temMap){
-        this.templates[key] = new VrModelBuilder(temMap[key])
+    /**
+     * Load template from string
+     * @param {string} key 
+     * @param {string} str 
+     * @export
+     */
+    this.load = (key, str)=>{
+        this.templates[key] = new VrModelBuilder(str)
     }
+
+
+    /**
+     * Set Model
+     * @export
+     */
+    this.model = (mdl)=> this.dmodel = mdl
+
+
+    /**
+     * Load from network template
+     * @export
+     */
+    this.netload = (name, url)=> this.load(name, syncGet(url))
 }
+/**
+ * @export
+ */
+const reanet = new Reanet()
