@@ -609,6 +609,13 @@ function Reanet(){
 
 
     /**
+     * Get item from model
+     * @export
+     */
+    this.get = (key)=> this.dmodel[key]
+
+
+    /**
      * Load from network template
      * @export
      */

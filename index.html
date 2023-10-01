@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Testing ReaNet page</title>
     <script src="./reanet.js"></script>
+    <script src="./modules/lang.js"></script>
 </head>
 <body>
     <style>
@@ -31,7 +32,7 @@
                     {data.obj2}
                 </div>
                 <div class="{ba}" onclick='onclick1()'>
-                    CLICK
+                    {lang.click}
                 </div>
             </div>
         </div>
@@ -40,6 +41,7 @@
         </div>
     </template>
 
+    <script src="./modules/sl_rloader.js"></script>
     <div id="frame" class="test"></div>
 
     <script>
@@ -47,8 +49,12 @@
             data:[{obj:"TEXT"},{obj:"TEXT2"}],
             ba:"testclass"
         }
-        const reanet = new Reanet(data)
+        reanet.model(data)
         reanet.placeTo("frame", "main")
+        reanet.lang.set("ru", {click:"CLICK ME!"})
+        reanet.lang.set("en", {click:"CLICK ME 2!"})
+        reanet.lang.use("ru")
+
 
         var num = 0
 
@@ -66,6 +72,7 @@
             }
             if(num==2){
                 data["ba"] = "test2"
+                reanet.lang.use("en")
                 // reanet.destroy("frame")
             } else{
                 data["ba"] = "testclass"

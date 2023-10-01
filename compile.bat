@@ -14,6 +14,7 @@ IF %install% == true (
 
 IF "%name%" == "all"  (
     call :compile modules/sl_rloader e
+    call :compile modules/lang e
     call :compile reanet 
     goto :end
 )
