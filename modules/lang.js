@@ -8,10 +8,12 @@ reanet.lang = new ReaLang()
  * @constructor
  */
 function ReaLang(){
-    this.avilable = {def:{}}
+    this.avilable = {}
     this.sources = {}
-    this.current = this.avilable["def"]
-    this.proxy = new Proxy({}, {get: (obj, p) => {return this.current[p]}})
+    this.current = {}
+    this.proxy = new Proxy({}, {get: (obj, p) => {
+        return p=="list"?Object.keys(this.sources):this.current[p]
+    }})
 
     /**
      * Load lang pack from net
@@ -30,6 +32,7 @@ function ReaLang(){
      * @export
      */
     this.set = (code, translations)=>{
+        this.sources[code] = "*"
         this.avilable[code] = translations
     }
 
@@ -57,7 +60,7 @@ function ReaLang(){
                 })
                 return
             } else{
-                this.current = this.avilable["def"]
+                this.current = {}
             }
         }
         reanet.update()

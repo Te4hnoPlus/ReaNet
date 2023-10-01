@@ -160,18 +160,25 @@ function Reanet(){
 
 
     let forItems = (item, model)=>{
-        let vrAtrs = new VrAttributesItem(item)
-        if(vrAtrs.upd){
-            model.add(vrAtrs)
-        }
-        
-        if(hasChilds(item)){
-            let atr = getAndRem(item, "if")
+        let atr
+        if(item.getAttributeNames){
+            let vrAtrs = new VrAttributesItem(item)
+            if(vrAtrs.upd){
+                model.add(vrAtrs)
+            }
+            atr = getAndRem(item, "if")
             if(atr){
                 let logicItem = new VrLogicalItem(item, atr)
                 model.add(logicItem)
                 model = logicItem
             }
+            atr = getAndRem(item, "sub")
+            if(atr){
+                return setTo(cloneNodes(this.templates[atr].nodes), item, model)
+            }
+        }
+
+        if(hasChilds(item)){
             atr = getAndRem(item, "for")
             if(atr){
                 model.add(new VrModelDynamicItem(item, atr))
@@ -198,6 +205,28 @@ function Reanet(){
             src = src[keys[cursor]]
         }
         return src
+    }
+
+
+    let setTo = (nodes, frame, model)=>{
+        let vrModel = new VrModel()
+        let i
+
+        if(model){
+            for(i = 0; i < nodes.length; i++) {
+                forItems(nodes[i], vrModel)
+            }
+            vrModel.upd(model, undefined)
+            for(i=0;i<nodes.length;i++) {
+                frame.appendChild(nodes[i])
+            }
+        } else{
+            for(i = 0; i < nodes.length; i++){
+                forItems(nodes[i], vrModel)
+                frame.appendChild(nodes[i])
+            }
+        }
+        return vrModel
     }
 
 
@@ -228,7 +257,6 @@ function Reanet(){
      * @private
      */
     function VrAttributesItem(item){
-        if(!item.getAttributeNames)return
         let names = item.getAttributeNames()
         let atrTweakers = []
 
@@ -410,7 +438,7 @@ function Reanet(){
 
 
         this.upd = (model, forVar)=>{
-            let objects = model[this.forKey]
+            let objects = getRec(model, this.forKey)
 
             if(objects){
                 let temp, j, i
@@ -466,32 +494,9 @@ function Reanet(){
         }
 
 
-        this.cloneNodes = ()=>{
-            return cloneNodes(this.nodes)
-        }
-
-
         this.placeTo = (id, model)=>{
-            let vrModel = new VrModel()
             let frame = getEl(id)
-            let nodes = this.cloneNodes()
-            let i
-
-            if(model){
-                for(i = 0; i < nodes.length; i++) {
-                    forItems(nodes[i], vrModel)
-                }
-                vrModel.upd(model, undefined)
-                for(i=0;i<nodes.length;i++) {
-                    frame.appendChild(nodes[i])
-                }
-            } else{
-                for(i = 0; i < nodes.length; i++){
-                    forItems(nodes[i], vrModel)
-                    frame.appendChild(nodes[i])
-                }
-            }
-
+            let vrModel = setTo(cloneNodes(this.nodes), frame, model)
             vrModel.id = id
             frame.vrModel = vrModel
             return vrModel
@@ -620,6 +625,16 @@ function Reanet(){
      * @export
      */
     this.netload = (name, url)=> this.load(name, syncGet(url))
+
+
+    /**
+     * Create or set label
+     * @export
+     */
+    this.label = (func, key=undefined)=>{
+        let lbl = new Proxy({}, {get: (obj, p) => func(p)})
+        return key?this.set(key, func):lbl
+    }
 }
 /**
  * @export
